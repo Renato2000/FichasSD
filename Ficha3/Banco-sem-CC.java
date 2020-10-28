@@ -65,7 +65,8 @@ class Bank {
     }
 
     /*
-    Como não sabemos se o get é thread safe, temos de utilizar locks
+    Como não sabemos se o get é thread safe, temos de utilizar locks.
+    Poderia ser removida ao fazer c.balance()
 
     lockBanco.lock();
     1. verificar se a conta existe
@@ -82,7 +83,6 @@ class Bank {
             c = map.get(id);
             if (c == null)
                 return 0;
-            return c.balance();
             c.lock.lock();
         } finally{
             lockBanco.unlock();
