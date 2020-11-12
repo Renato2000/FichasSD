@@ -1,4 +1,5 @@
 import java.util.*;
+import java.util.concurrent.locks.*;
 
 class Bank {
 
@@ -111,9 +112,9 @@ class Bank {
         }
 
         try{
-            return c.withdraw(value);
+            return c.deposit(value);
         } finally{
-            c.lock.deposit(value);
+            c.lock.unlock();
         }
     }
 
@@ -169,16 +170,18 @@ class Bank {
     // sum of balances in set of accounts; 0 if some does not exist
     public int totalBalance(int[] ids) {
         int total = 0;
-        Account[] acs = new Account[ids.length] 
+        Account[] acs = new Account[ids.length]; //vai ser necessário guardar as contas, porque o map não é thread safe.
 
         lockBanco.lock();
         try{
             for (int i : ids) {
-                Account c = map.get(i);
-                if (c == null)
-                    return 0;
-                
+            	if(!map.containsKey(i)){
+            		lockBanco.lock();
+            		return 0;
+            	}
+            	Account c = map.get(i);
                 acs[i] = c;
+            	//c.lock.lock();                
             }
 
             for(Account c : acs){
