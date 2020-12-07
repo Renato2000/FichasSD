@@ -19,6 +19,7 @@ class Contact {
     }
 
     public void serialize(DataOutputStream out) throws IOException{
+    	System.out.println("Serializing...");
         out.writeUTF(this.name);
         out.writeInt(this.age);
         out.writeLong(this.phoneNumber);
@@ -39,9 +40,12 @@ class Contact {
         }
 
         out.flush();
+        System.out.println("Finished serializing...");
     }
 
     public static Contact deserialize(DataInputStream in) throws IOException{
+		System.out.println("Deserializing...");
+
         String name = in.readUTF();
         int age = in.readInt();
         long phoneNumber = in.readLong();
@@ -59,6 +63,8 @@ class Contact {
         for(int i = 0; i < emailsSize; i++){
             emails.add(in.readUTF());
         }
+
+		System.out.println("Finished deserializing...");
 
         return new Contact(name, age, phoneNumber, company, emails);
     }
