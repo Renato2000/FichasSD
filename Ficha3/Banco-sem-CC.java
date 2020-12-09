@@ -191,7 +191,8 @@ class Bank {
             lockBanco.unlock();
         }
 
-        for(Account c : acs){
+        for(Account c : acs){ // Não poderiamos fazer get da conta do map, porque não estamos protegidos por um lock, ou seja, 
+        					  // poderia ter acontecido algo à conta, como ter sido removida.
             total += c.balance();
             c.lock.unlock();
         }
