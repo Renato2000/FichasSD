@@ -1,21 +1,25 @@
 package g8;
 
-import java.io.*;
-import java.net.Socket;
-import java.util.*;
+import java.io.IOException;
+import java.util.ArrayDeque;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class Demultiplexer implements AutoCloseable {
-	private final TaggedConnection conn;
-	private final Map<Interger, Entry> buffer = new HashMap<>();
-	private final ReentrantLock lock = new ReentrantLock();
+	private final g8.TaggedConnection conn;
+	private final Map<Integer, Entry> buffer = new HashMap<>();
+	private final Lock lock = new ReentrantLock();
 	private Exception exception;
 	
 	private class Entry{
 		final ArrayDeque<byte[]> queue = new ArrayDeque<>();
-		final Condition cond = new lock.newCondition(); 
+		final Condition cond = lock.newCondition();
 	}
 
-	public Demultiplexer(TaggedConnection taggedConnection) {
+	public Demultiplexer(g8.TaggedConnection taggedConnection) {
 		this.conn = taggedConnection; 
 	}
 
@@ -25,6 +29,7 @@ public class Demultiplexer implements AutoCloseable {
 			e = new Entry();
 			buffer.put(tag, e);
 		}
+		return e;
 	}
 
 	public void start() {
@@ -33,7 +38,7 @@ public class Demultiplexer implements AutoCloseable {
 				while(true) {
 
 					// 1. ler frame da connection
-					Frame frame = this.conn.receive();
+					g8.TaggedConnection.Frame frame = this.conn.receive();
 
 					//Este lock pode estar depois do receive, pq só temos uma thread a ler o receive, e o seu conteudo está protegido
 					lock.lock();
@@ -48,10 +53,10 @@ public class Demultiplexer implements AutoCloseable {
 					} finally { lock.unlock(); }
 				}
 			}
-			catch(IOException e) {
+			catch(IOException e) { //caso acontece algum erro no socket (tipicamente IOException's)
 				//sinalizar todas as threads
-				lock.lock(); //é necessário adequiri o lock para usar a variável de instancia
-				this.exception = e; //é melhor ficar dentro do lock, porque é um estado partilhado, e evita que novas threads entrem no while
+				lock.lock(); //é necessário adequirir o lock para usar a variável de instancia
+				this.exception = e; //é necesário ficar dentro do lock, porque é um estado partilhado, e evita que novas threads entrem no while
 				buffer.forEach((k, v) -> v.cond.signalAll());
 				lock.unlock();
 
@@ -60,7 +65,7 @@ public class Demultiplexer implements AutoCloseable {
 		}).start();
 	} 
 
-	public void send(Frame frame) throws IOException {
+	public void send(g8.TaggedConnection.Frame frame) throws IOException {
 		this.conn.send(frame);
 	}
 
@@ -68,7 +73,7 @@ public class Demultiplexer implements AutoCloseable {
 		this.conn.send(tag, data);
 	}
 
-	public byte[] receive(int tag) throws IOException, InterruptedException {
+	public byte[] receive(int tag) throws Exception {
 		lock.lock();
 
 		try {
