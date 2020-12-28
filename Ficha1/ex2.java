@@ -17,7 +17,6 @@ public class ex2{
 	public static void main(String args[]) throws Exception{
 		int nThreads = 10;
 		Bank banco = new Bank();
-		Deposito dep = new Deposito(banco);
 		Thread threads[] = new Thread[nThreads];
 
 		for(int i = 0; i < nThreads; i++){

@@ -95,10 +95,11 @@ class Bank {
   		av[max].lock.lock();
 
   		try{
-  			this.withdraw(from, value);
-  			this.deposit(to, value);
-  			
-  			return true;
+  			if(!this.withdraw(from, value)) return false;
+            if(!this.deposit(to, value)) return false;
+            return true;
+
+            //return(this.withdraw(from, value) && this.deposit(to, value));
   		}
   		finally{
   			av[min].lock.unlock();

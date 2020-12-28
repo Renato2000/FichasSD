@@ -98,4 +98,11 @@ public class Demultiplexer implements AutoCloseable {
 	public void close() throws IOException {
 		this.conn.close();
 	}
+
+	/*
+	* Para o exercicio adicional, a ideia seria cada thread ler mensagens até aparecer uma mensagem para ele.
+	* Enquanto vai lendo mensagens que não são deles, vai guardand essas mensagens no buffer correto.
+	* Desta forma, quando a proxima thread for ler, vai ver se tem alguma mensagem no seu buffer, e se tiver
+	* recebe essa mensagem, se não tiver, faz o processo descrito anteriormente.
+	* */
 }
