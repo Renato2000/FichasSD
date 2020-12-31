@@ -176,7 +176,7 @@ class Bank {
         try{
             for (int i : ids) {
             	if(!map.containsKey(i)){
-            		lockBanco.lock();
+            		lockBanco.unlock();
             		return 0;
             	}
             	Account c = map.get(i);
@@ -199,4 +199,31 @@ class Bank {
         
         return total;
     }
+
+    /*Alternative
+    public int totalBalance(int[] ids) {
+        int total = 0;
+        List<> acs = new ArrayList<>();
+
+        lockBanco.lock();
+        try{
+            for(int i : ids){
+                if(map.containsKey(i)){
+                    Account c = map.get(i);
+                    c.lock.lock();
+                    acs.add(c);
+                }
+            }
+        }
+        finally{
+            lockBanco.unlock();
+        }
+
+        for (Account c : acs) {
+            total += c.balance();
+            c.lock.unlock();
+        }
+        return total;
+    }
+    */
 }
